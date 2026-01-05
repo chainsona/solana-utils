@@ -25,8 +25,8 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Rust
-/target
-/secret-key/rust/target
+target/
+
 **/*.rs.bk
 
 # IDEs

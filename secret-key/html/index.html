@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solana Secret Key Utils</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #0f172a;
+        color: #e2e8f0;
+      }
+      .card {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+      }
+      .btn-primary {
+        background-color: #3b82f6;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background-color: #2563eb;
+      }
+      .input-field {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        color: white;
+      }
+      .input-field:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen p-8 flex flex-col items-center">
+    <div class="max-w-3xl w-full space-y-8">
+      <h1
+        class="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400"
+      >
+        Solana Key Utils
+      </h1>
+
+      <!-- 1. Generate New Key -->
+      <div class="card p-6 rounded-xl shadow-lg">
+        <h2 class="text-xl font-semibold mb-4 text-blue-300">
+          Generate New Keypair
+        </h2>
+        <button
+          id="genBtn"
+          class="btn-primary px-4 py-2 rounded text-white font-medium w-full"
+        >
+          Generate
+        </button>
+        <div id="genResult" class="mt-4 hidden space-y-2">
+          <div>
+            <label class="text-xs text-gray-400 uppercase">Public Key</label>
+            <div
+              class="font-mono text-sm break-all bg-black/30 p-2 rounded text-emerald-400"
+              id="genPub"
+            ></div>
+          </div>
+          <div>
+            <label class="text-xs text-gray-400 uppercase"
+              >Secret Key (Base58)</label
+            >
+            <div
+              class="font-mono text-sm break-all bg-black/30 p-2 rounded text-yellow-400"
+              id="genPriv58"
+            ></div>
+          </div>
+          <div>
+            <label class="text-xs text-gray-400 uppercase"
+              >Secret Key (Uint8 Array)</label
+            >
+            <div
+              class="font-mono text-xs break-all bg-black/30 p-2 rounded text-gray-300"
+              id="genPriv8"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Converters -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Uint8 to Base58 -->
+        <div class="card p-6 rounded-xl shadow-lg">
+          <h2 class="text-lg font-semibold mb-4 text-purple-300">
+            Uint8Array &rarr; Base58
+          </h2>
+          <textarea
+            id="u8Input"
+            class="input-field w-full h-24 p-3 rounded mb-3 text-xs font-mono"
+            placeholder="[12, 34, ...]"
+          ></textarea>
+          <button
+            id="u8Btn"
+            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full transition-colors"
+          >
+            Convert
+          </button>
+          <div
+            id="u8Result"
+            class="mt-3 font-mono text-sm break-all text-yellow-400 min-h-[1.5rem]"
+          ></div>
+        </div>
+
+        <!-- Base58 to Uint8 -->
+        <div class="card p-6 rounded-xl shadow-lg">
+          <h2 class="text-lg font-semibold mb-4 text-purple-300">
+            Base58 &rarr; Uint8Array
+          </h2>
+          <textarea
+            id="b58Input"
+            class="input-field w-full h-24 p-3 rounded mb-3 text-xs font-mono"
+            placeholder="Base58 string..."
+          ></textarea>
+          <button
+            id="b58Btn"
+            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full transition-colors"
+          >
+            Convert
+          </button>
+          <div
+            id="b58Result"
+            class="mt-3 font-mono text-xs break-all text-gray-300 min-h-[1.5rem]"
+          ></div>
+        </div>
+      </div>
+
+      <!-- 3. Grinder -->
+      <div class="card p-6 rounded-xl shadow-lg">
+        <h2 class="text-xl font-semibold mb-4 text-pink-300">
+          Vanity Address Grinder
+        </h2>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Starts with</label>
+            <input
+              type="text"
+              id="grindStart"
+              class="input-field w-full p-2 rounded"
+              placeholder="e.g. sol"
+            />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Ends with</label>
+            <input
+              type="text"
+              id="grindEnd"
+              class="input-field w-full p-2 rounded"
+              placeholder="e.g. ana"
+            />
+          </div>
+        </div>
+        <button
+          id="grindBtn"
+          class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded w-full transition-colors font-medium"
+        >
+          Start Grinding
+        </button>
+        <div
+          id="grindStatus"
+          class="mt-2 text-center text-sm text-gray-400 h-6"
+        ></div>
+
+        <div
+          id="grindResults"
+          class="mt-4 space-y-2 max-h-60 overflow-y-auto hidden"
+        >
+          <!-- Results go here -->
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { Keypair } from "https://esm.sh/@solana/web3.js@1.98.0";
+      import bs58 from "https://esm.sh/bs58@6.0.0";
+
+      // Helper: Uint8Array to string
+      const u8ToStr = (u8) => `[${u8.toString()}]`;
+
+      // 1. Generate
+      document.getElementById("genBtn").addEventListener("click", () => {
+        const kp = Keypair.generate();
+        document.getElementById("genPub").textContent = kp.publicKey.toBase58();
+        document.getElementById("genPriv58").textContent = bs58.encode(
+          kp.secretKey,
+        );
+        document.getElementById("genPriv8").textContent = u8ToStr(kp.secretKey);
+        document.getElementById("genResult").classList.remove("hidden");
+      });
+
+      // 2. Uint8 -> Base58
+      document.getElementById("u8Btn").addEventListener("click", () => {
+        try {
+          const input = document.getElementById("u8Input").value.trim();
+          const parsed = JSON.parse(
+            input.startsWith("[") ? input : `[${input}]`,
+          );
+          const u8 = new Uint8Array(parsed);
+          document.getElementById("u8Result").textContent = bs58.encode(u8);
+        } catch (e) {
+          document.getElementById("u8Result").textContent =
+            "Error: Invalid Uint8Array input";
+        }
+      });
+
+      // 3. Base58 -> Uint8
+      document.getElementById("b58Btn").addEventListener("click", () => {
+        try {
+          const input = document.getElementById("b58Input").value.trim();
+          const u8 = bs58.decode(input);
+          document.getElementById("b58Result").textContent = u8ToStr(u8);
+        } catch (e) {
+          document.getElementById("b58Result").textContent =
+            "Error: Invalid Base58 input";
+        }
+      });
+
+      // 4. Grind
+      let isGrinding = false;
+      document
+        .getElementById("grindBtn")
+        .addEventListener("click", async () => {
+          if (isGrinding) return;
+
+          const start = document.getElementById("grindStart").value.trim();
+          const end = document.getElementById("grindEnd").value.trim();
+
+          if (!start && !end) {
+            alert("Please specify start or end string");
+            return;
+          }
+
+          isGrinding = true;
+          const btn = document.getElementById("grindBtn");
+          const status = document.getElementById("grindStatus");
+          const results = document.getElementById("grindResults");
+
+          btn.textContent = "Grinding... (Check Console for Speed)";
+          btn.classList.add("opacity-50", "cursor-not-allowed");
+          results.innerHTML = "";
+          results.classList.remove("hidden");
+
+          let attempts = 0;
+          const startTime = Date.now();
+
+          // Use setImmediate/setTimeout loop to not freeze UI completely
+          const grindLoop = () => {
+            const BATCH_SIZE = 1000;
+            for (let i = 0; i < BATCH_SIZE; i++) {
+              const kp = Keypair.generate();
+              const pub = kp.publicKey.toBase58();
+
+              const matchStart = !start || pub.startsWith(start);
+              const matchEnd = !end || pub.endsWith(end);
+
+              if (matchStart && matchEnd) {
+                const div = document.createElement("div");
+                div.className =
+                  "bg-black/30 p-2 rounded border border-pink-900/50";
+                div.innerHTML = `
+                            <div class="text-emerald-400 font-mono text-sm">${pub}</div>
+                            <div class="text-xs text-gray-500 truncate mt-1">${bs58.encode(kp.secretKey)}</div>
+                        `;
+                results.prepend(div);
+
+                // Stop after 1 match for simple web demo (or could make configurable)
+                isGrinding = false;
+                btn.textContent = "Start Grinding";
+                btn.classList.remove("opacity-50", "cursor-not-allowed");
+                status.textContent = `Found in ${(Date.now() - startTime) / 1000}s after ${attempts} attempts`;
+                return;
+              }
+              attempts++;
+            }
+
+            if (isGrinding) {
+              if (attempts % 10000 === 0) {
+                status.textContent = `Attempts: ${attempts.toLocaleString()}...`;
+              }
+              setTimeout(grindLoop, 0);
+            }
+          };
+
+          grindLoop();
+        });
+    </script>
+  </body>
+</html>

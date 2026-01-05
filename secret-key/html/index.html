@@ -9,6 +9,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <!-- Iconify for icons -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -22,6 +24,20 @@
                 850: "#172033",
                 900: "#0f172a",
                 950: "#020617",
+              },
+            },
+            animation: {
+              "fade-in": "fadeIn 0.2s ease-in-out",
+              "slide-up": "slideUp 0.3s ease-out",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { transform: "translateY(10px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
               },
             },
           },
@@ -81,6 +97,9 @@
         transform: translateY(-1px);
         box-shadow: 0 6px 8px -1px rgba(219, 39, 119, 0.3);
       }
+      .btn-icon {
+        @apply p-2 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors;
+      }
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
@@ -98,11 +117,15 @@
       }
     </style>
   </head>
-  <body class="min-h-screen p-6 md:p-12 flex flex-col items-center selection:bg-blue-500/30">
-    <div class="max-w-4xl w-full space-y-8">
+  <body
+    class="min-h-screen p-6 md:p-12 flex flex-col items-center selection:bg-blue-500/30"
+  >
+    <div class="max-w-4xl w-full space-y-8 relative">
       <!-- Header -->
       <div class="text-center space-y-2 mb-12">
-        <h1 class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400 tracking-tight pb-2">
+        <h1
+          class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400 tracking-tight pb-2"
+        >
           Solana Key Utils
         </h1>
         <p class="text-slate-400 font-medium">Secure. Fast. Client-side.</p>
@@ -111,40 +134,118 @@
       <!-- 1. Generate New Key -->
       <div class="card p-8 rounded-2xl shadow-xl border-t border-blue-500/10">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-semibold text-blue-400 flex items-center gap-2">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <h2
+            class="text-2xl font-semibold text-blue-400 flex items-center gap-2"
+          >
+            <iconify-icon icon="lucide:plus-circle"></iconify-icon>
             Generate Keypair
           </h2>
         </div>
-        
+
         <button
           id="genBtn"
-          class="btn-primary px-6 py-3 rounded-lg text-white font-semibold w-full text-lg tracking-wide"
+          class="btn-primary px-6 py-3 rounded-lg text-white font-semibold w-full text-lg tracking-wide flex items-center justify-center gap-2"
         >
+          <iconify-icon icon="lucide:sparkles"></iconify-icon>
           Generate New Wallet
         </button>
 
-        <div id="genResult" class="mt-6 hidden space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div
+          id="genResult"
+          class="mt-6 hidden space-y-4 animate-in fade-in slide-in-from-top-4 duration-300"
+        >
+          <!-- Public Key -->
           <div class="group relative">
-            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">Public Key</label>
+            <div class="flex justify-between items-end mb-1.5 ml-1">
+              <label
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                >Public Key</label
+              >
+              <button
+                class="btn-icon copy-btn"
+                data-target="genPub"
+                title="Copy Public Key"
+              >
+                <iconify-icon icon="lucide:copy"></iconify-icon>
+              </button>
+            </div>
             <div
               class="font-mono text-sm break-all bg-slate-900/50 p-4 rounded-lg text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 transition-colors"
               id="genPub"
             ></div>
           </div>
+
+          <!-- Secret Key Base58 -->
           <div>
-            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">Secret Key (Base58)</label>
-            <div
-              class="font-mono text-sm break-all bg-slate-900/50 p-4 rounded-lg text-yellow-400 border border-yellow-500/20"
-              id="genPriv58"
-            ></div>
+            <div class="flex justify-between items-end mb-1.5 ml-1">
+              <label
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                >Secret Key (Base58)</label
+              >
+              <div class="flex gap-1">
+                <button
+                  class="btn-icon toggle-visibility-btn"
+                  data-target="genPriv58"
+                  title="Show/Hide"
+                >
+                  <iconify-icon icon="lucide:eye"></iconify-icon>
+                </button>
+                <button
+                  class="btn-icon copy-btn"
+                  data-target="genPriv58"
+                  title="Copy Secret Key"
+                >
+                  <iconify-icon icon="lucide:copy"></iconify-icon>
+                </button>
+              </div>
+            </div>
+            <div class="relative">
+              <div
+                class="font-mono text-sm break-all bg-slate-900/50 p-4 rounded-lg text-yellow-400 border border-yellow-500/20 blur-sm transition-all duration-200 select-none"
+                id="genPriv58"
+              ></div>
+            </div>
           </div>
+
+          <!-- Secret Key Uint8 -->
           <div>
-            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">Secret Key (Uint8 Array)</label>
+            <div class="flex justify-between items-end mb-1.5 ml-1">
+              <label
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                >Secret Key (Uint8 Array)</label
+              >
+              <div class="flex gap-1">
+                <button
+                  class="btn-icon toggle-visibility-btn"
+                  data-target="genPriv8"
+                  title="Show/Hide"
+                >
+                  <iconify-icon icon="lucide:eye"></iconify-icon>
+                </button>
+                <button
+                  class="btn-icon copy-btn"
+                  data-target="genPriv8"
+                  title="Copy Array"
+                >
+                  <iconify-icon icon="lucide:copy"></iconify-icon>
+                </button>
+              </div>
+            </div>
             <div
-              class="font-mono text-xs break-all bg-slate-900/50 p-4 rounded-lg text-slate-400 border border-slate-700/30"
+              class="font-mono text-xs break-all bg-slate-900/50 p-4 rounded-lg text-slate-400 border border-slate-700/30 blur-sm transition-all duration-200 select-none"
               id="genPriv8"
             ></div>
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-2 flex justify-end">
+            <button
+              id="downloadBtn"
+              class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <iconify-icon icon="lucide:download"></iconify-icon>
+              Save Keypair (JSON)
+            </button>
           </div>
         </div>
       </div>
@@ -152,9 +253,13 @@
       <!-- 2. Converters -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Uint8 to Base58 -->
-        <div class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full">
-          <h2 class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+        <div
+          class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full"
+        >
+          <h2
+            class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2"
+          >
+            <iconify-icon icon="lucide:arrow-right-left"></iconify-icon>
             Uint8Array &rarr; Base58
           </h2>
           <textarea
@@ -164,20 +269,32 @@
           ></textarea>
           <button
             id="u8Btn"
-            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto"
+            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto flex items-center justify-center gap-2"
           >
             Convert
           </button>
-          <div
-            id="u8Result"
-            class="mt-4 font-mono text-sm break-all text-yellow-400 min-h-[1.5rem] bg-slate-900/30 p-3 rounded-lg border border-white/5"
-          ></div>
+          <div class="relative mt-4 group">
+            <div
+              id="u8Result"
+              class="font-mono text-sm break-all text-yellow-400 min-h-[3rem] bg-slate-900/30 p-3 rounded-lg border border-white/5 pr-10"
+            ></div>
+            <button
+              class="btn-icon copy-btn absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              data-target="u8Result"
+            >
+              <iconify-icon icon="lucide:copy"></iconify-icon>
+            </button>
+          </div>
         </div>
 
         <!-- Base58 to Uint8 -->
-        <div class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full">
-          <h2 class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+        <div
+          class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full"
+        >
+          <h2
+            class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2"
+          >
+            <iconify-icon icon="lucide:arrow-right-left"></iconify-icon>
             Base58 &rarr; Uint8Array
           </h2>
           <textarea
@@ -187,26 +304,39 @@
           ></textarea>
           <button
             id="b58Btn"
-            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto"
+            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto flex items-center justify-center gap-2"
           >
             Convert
           </button>
-          <div
-            id="b58Result"
-            class="mt-4 font-mono text-xs break-all text-slate-300 min-h-[1.5rem] bg-slate-900/30 p-3 rounded-lg border border-white/5"
-          ></div>
+          <div class="relative mt-4 group">
+            <div
+              id="b58Result"
+              class="font-mono text-xs break-all text-slate-300 min-h-[3rem] bg-slate-900/30 p-3 rounded-lg border border-white/5 pr-10"
+            ></div>
+            <button
+              class="btn-icon copy-btn absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              data-target="b58Result"
+            >
+              <iconify-icon icon="lucide:copy"></iconify-icon>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- 3. Grinder -->
       <div class="card p-8 rounded-2xl shadow-xl border-t border-pink-500/10">
-        <h2 class="text-2xl font-semibold mb-6 text-pink-400 flex items-center gap-2">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-            Vanity Address Grinder
+        <h2
+          class="text-2xl font-semibold mb-6 text-pink-400 flex items-center gap-2"
+        >
+          <iconify-icon icon="lucide:pickaxe"></iconify-icon>
+          Vanity Address Grinder
         </h2>
         <div class="grid grid-cols-2 gap-6 mb-6">
           <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Starts with</label>
+            <label
+              class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2"
+              >Starts with</label
+            >
             <input
               type="text"
               id="grindStart"
@@ -215,7 +345,10 @@
             />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ends with</label>
+            <label
+              class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2"
+              >Ends with</label
+            >
             <input
               type="text"
               id="grindEnd"
@@ -226,7 +359,7 @@
         </div>
         <button
           id="grindBtn"
-          class="btn-pink text-white px-6 py-3 rounded-lg w-full font-semibold text-lg tracking-wide"
+          class="btn-pink text-white px-6 py-3 rounded-lg w-full font-semibold text-lg tracking-wide flex items-center justify-center gap-2"
         >
           Start Grinding
         </button>
@@ -242,11 +375,20 @@
           <!-- Results go here -->
         </div>
       </div>
-      
+
       <div class="text-center text-slate-600 text-sm mt-12 pb-6">
-        <p>🔒 All operations run entirely in your browser. No data leaves this page.</p>
+        <p>
+          🔒 All operations run entirely in your browser. No data leaves this
+          page.
+        </p>
       </div>
     </div>
+
+    <!-- Toast Container -->
+    <div
+      id="toastContainer"
+      class="fixed bottom-6 right-6 flex flex-col gap-2 z-50 pointer-events-none"
+    ></div>
 
     <script type="module">
       import { Keypair } from "https://esm.sh/@solana/web3.js@1.98.0";
@@ -255,15 +397,115 @@
       // Helper: Uint8Array to string
       const u8ToStr = (u8) => `[${u8.toString()}]`;
 
+      // Toast Notification System
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        const colors =
+          type === "success"
+            ? "bg-emerald-500/90 text-white"
+            : "bg-red-500/90 text-white";
+        const icon =
+          type === "success" ? "lucide:check-circle" : "lucide:alert-circle";
+
+        toast.className = `${colors} px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0 pointer-events-auto min-w-[200px]`;
+        toast.innerHTML = `
+                <iconify-icon icon="${icon}" width="20"></iconify-icon>
+                <span class="font-medium text-sm">${message}</span>
+            `;
+
+        container.appendChild(toast);
+
+        // Animate in
+        requestAnimationFrame(() => {
+          toast.classList.remove("translate-y-10", "opacity-0");
+        });
+
+        // Remove after delay
+        setTimeout(() => {
+          toast.classList.add("translate-y-10", "opacity-0");
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // Copy Functionality
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".copy-btn");
+        if (!btn) return;
+
+        const targetId = btn.dataset.target;
+        const targetEl = document.getElementById(targetId);
+        if (targetEl && targetEl.textContent) {
+          navigator.clipboard.writeText(targetEl.textContent).then(() => {
+            showToast("Copied to clipboard!");
+            // Visual feedback on button
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML =
+              '<iconify-icon icon="lucide:check" class="text-emerald-400"></iconify-icon>';
+            setTimeout(() => {
+              btn.innerHTML = originalIcon;
+            }, 2000);
+          });
+        }
+      });
+
+      // Visibility Toggle
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".toggle-visibility-btn");
+        if (!btn) return;
+
+        const targetId = btn.dataset.target;
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.classList.toggle("blur-sm");
+          targetEl.classList.toggle("select-none");
+          const isHidden = targetEl.classList.contains("blur-sm");
+          btn.innerHTML = `<iconify-icon icon="${isHidden ? "lucide:eye" : "lucide:eye-off"}"></iconify-icon>`;
+        }
+      });
+
       // 1. Generate
+      let currentKeypair = null;
       document.getElementById("genBtn").addEventListener("click", () => {
-        const kp = Keypair.generate();
-        document.getElementById("genPub").textContent = kp.publicKey.toBase58();
+        currentKeypair = Keypair.generate();
+        document.getElementById("genPub").textContent =
+          currentKeypair.publicKey.toBase58();
         document.getElementById("genPriv58").textContent = bs58.encode(
-          kp.secretKey,
+          currentKeypair.secretKey,
         );
-        document.getElementById("genPriv8").textContent = u8ToStr(kp.secretKey);
+        document.getElementById("genPriv8").textContent = u8ToStr(
+          currentKeypair.secretKey,
+        );
         document.getElementById("genResult").classList.remove("hidden");
+
+        // Re-apply blurs if they were removed
+        document.getElementById("genPriv58").classList.add("blur-sm");
+        document.getElementById("genPriv8").classList.add("blur-sm");
+        document
+          .querySelectorAll(".toggle-visibility-btn iconify-icon")
+          .forEach((icon) => {
+            icon.setAttribute("icon", "lucide:eye");
+          });
+      });
+
+      // Download JSON
+      document.getElementById("downloadBtn").addEventListener("click", () => {
+        if (!currentKeypair) return;
+
+        const filename = `id-${currentKeypair.publicKey.toBase58().slice(0, 8)}.json`;
+        const blob = new Blob(
+          [JSON.stringify(Array.from(currentKeypair.secretKey))],
+          { type: "application/json" },
+        );
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Keypair JSON downloaded");
       });
 
       // 2. Uint8 -> Base58
@@ -276,8 +518,7 @@
           const u8 = new Uint8Array(parsed);
           document.getElementById("u8Result").textContent = bs58.encode(u8);
         } catch (e) {
-          document.getElementById("u8Result").textContent =
-            "Error: Invalid Uint8Array input";
+          showToast("Invalid Uint8Array input", "error");
         }
       });
 
@@ -288,8 +529,7 @@
           const u8 = bs58.decode(input);
           document.getElementById("b58Result").textContent = u8ToStr(u8);
         } catch (e) {
-          document.getElementById("b58Result").textContent =
-            "Error: Invalid Base58 input";
+          showToast("Invalid Base58 input", "error");
         }
       });
 
@@ -304,7 +544,7 @@
           const end = document.getElementById("grindEnd").value.trim();
 
           if (!start && !end) {
-            alert("Please specify start or end string");
+            showToast("Specify start or end string", "error");
             return;
           }
 
@@ -313,7 +553,8 @@
           const status = document.getElementById("grindStatus");
           const results = document.getElementById("grindResults");
 
-          btn.textContent = "Grinding...";
+          btn.innerHTML =
+            '<iconify-icon icon="lucide:loader-2" class="animate-spin"></iconify-icon> Grinding...';
           btn.classList.add("opacity-50", "cursor-not-allowed");
           results.innerHTML = "";
           results.classList.remove("hidden");
@@ -334,18 +575,27 @@
               if (matchStart && matchEnd) {
                 const div = document.createElement("div");
                 div.className =
-                  "bg-slate-900/50 p-4 rounded-lg border border-pink-500/20 animate-in fade-in slide-in-from-left-4";
+                  "bg-slate-900/50 p-4 rounded-lg border border-pink-500/20 animate-in fade-in slide-in-from-left-4 relative group";
                 div.innerHTML = `
-                            <div class="text-emerald-400 font-mono text-sm break-all">${pub}</div>
-                            <div class="text-xs text-slate-500 truncate mt-2 font-mono">${bs58.encode(kp.secretKey)}</div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-emerald-400 font-mono text-sm break-all font-bold">${pub}</div>
+                                    <div class="text-xs text-slate-500 truncate mt-2 font-mono blur-sm hover:blur-0 transition-all cursor-help" title="Hover to reveal">${bs58.encode(kp.secretKey)}</div>
+                                </div>
+                                <button class="btn-icon copy-btn opacity-0 group-hover:opacity-100 transition-opacity" data-target="grind-${attempts}">
+                                    <iconify-icon icon="lucide:copy"></iconify-icon>
+                                </button>
+                                <!-- Hidden element for copy target -->
+                                <div id="grind-${attempts}" class="hidden">${bs58.encode(kp.secretKey)}</div>
+                            </div>
                         `;
                 results.prepend(div);
 
-                // Stop after 1 match for simple web demo (or could make configurable)
                 isGrinding = false;
-                btn.textContent = "Start Grinding";
+                btn.innerHTML = "Start Grinding";
                 btn.classList.remove("opacity-50", "cursor-not-allowed");
                 status.textContent = `Found in ${(Date.now() - startTime) / 1000}s after ${attempts.toLocaleString()} attempts`;
+                showToast("Vanity address found!");
                 return;
               }
               attempts++;

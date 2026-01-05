@@ -1,7 +1,13 @@
-import { Keypair } from "@solana/web3.js";
-import bs58 from "bs58";
 import { Command } from "commander";
 import chalk from "chalk";
+import {
+  uint8ToBs58,
+  bs58ToUint8,
+  generateKeypair,
+  checkMatch,
+} from "./utils.js";
+import { Keypair } from "@solana/web3.js";
+import bs58 from "bs58";
 
 const program = new Command();
 
@@ -17,11 +23,7 @@ program
   .argument("<key>", "JSON string or comma-separated list of Uint8Array")
   .action((keyStr) => {
     try {
-      const parsed = JSON.parse(
-        keyStr.startsWith("[") ? keyStr : `[${keyStr}]`,
-      );
-      const uint8 = new Uint8Array(parsed);
-      const b58 = bs58.encode(uint8);
+      const b58 = uint8ToBs58(keyStr);
       console.log(chalk.green("Base58:"), b58);
     } catch (e) {
       console.error(chalk.red("Error parsing input:"), e.message);
@@ -33,9 +35,9 @@ program
   .command("bs58-to-uint8")
   .description("Convert Base58 secret key to Uint8Array")
   .argument("<b58>", "Base58 string")
-  .action((b58) => {
+  .action((b58Str) => {
     try {
-      const uint8 = bs58.decode(b58);
+      const uint8 = bs58ToUint8(b58Str);
       console.log(chalk.green("Uint8Array:"), `[${uint8.toString()}]`);
     } catch (e) {
       console.error(chalk.red("Error decoding Base58:"), e.message);
@@ -47,15 +49,12 @@ program
   .command("generate")
   .description("Generate a new secret key")
   .action(() => {
-    const keypair = Keypair.generate();
-    console.log(chalk.blue("Public Key:"), keypair.publicKey.toBase58());
-    console.log(
-      chalk.green("Secret Key (Base58):"),
-      bs58.encode(keypair.secretKey),
-    );
+    const { publicKey, secretKeyBs58, secretKeyUint8 } = generateKeypair();
+    console.log(chalk.blue("Public Key:"), publicKey);
+    console.log(chalk.green("Secret Key (Base58):"), secretKeyBs58);
     console.log(
       chalk.yellow("Secret Key (Uint8):"),
-      `[${keypair.secretKey.toString()}]`,
+      `[${secretKeyUint8.toString()}]`,
     );
   });
 
@@ -90,29 +89,14 @@ program
 
     while (found < count) {
       const kp = Keypair.generate();
-      let pub = kp.publicKey.toBase58();
+      const pub = kp.publicKey.toBase58();
 
-      if (ignoreCase) {
-        pub = pub.toLowerCase();
-      }
-
-      const matchStart =
-        !startsWith ||
-        (ignoreCase
-          ? pub.startsWith(startsWith.toLowerCase())
-          : pub.startsWith(startsWith));
-      const matchEnd =
-        !endsWith ||
-        (ignoreCase
-          ? pub.endsWith(endsWith.toLowerCase())
-          : pub.endsWith(endsWith));
-
-      if (matchStart && matchEnd) {
+      if (checkMatch(pub, startsWith, endsWith, ignoreCase)) {
         found++;
         console.log(
           chalk.green(`\nMatch #${found} found after ${attempts} attempts:`),
         );
-        console.log(chalk.blue("Public Key:"), kp.publicKey.toBase58());
+        console.log(chalk.blue("Public Key:"), pub);
         console.log(chalk.yellow("Secret Key:"), bs58.encode(kp.secretKey));
       }
 

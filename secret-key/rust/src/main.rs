@@ -1,10 +1,7 @@
 use clap::{Parser, Subcommand};
 use rayon::prelude::*;
-use solana_sdk::{
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-};
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use solana_sdk::signature::{Keypair, Signer};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -47,20 +44,41 @@ enum Commands {
     },
 }
 
+// Logic extracted for testing
+fn parse_u8_array(input: &str) -> Result<Vec<u8>, String> {
+    let trimmed = input.trim_matches(|c| c == '[' || c == ']');
+    if trimmed.trim().is_empty() {
+        return Ok(vec![]);
+    }
+    trimmed
+        .split(',')
+        .map(|s| {
+            s.trim()
+                .parse::<u8>()
+                .map_err(|e| format!("Invalid byte '{}': {}", s, e))
+        })
+        .collect()
+}
+
+fn check_match(pubkey: &str, start: &str, end: &str, ignore_case: bool) -> bool {
+    if ignore_case {
+        let p_lower = pubkey.to_lowercase();
+        let s_lower = start.to_lowercase();
+        let e_lower = end.to_lowercase();
+        p_lower.starts_with(&s_lower) && p_lower.ends_with(&e_lower)
+    } else {
+        pubkey.starts_with(start) && pubkey.ends_with(end)
+    }
+}
+
 fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Uint8ToBs58 { input } => {
-            let trimmed = input.trim_matches(|c| c == '[' || c == ']');
-            let bytes: Result<Vec<u8>, _> =
-                trimmed.split(',').map(|s| s.trim().parse::<u8>()).collect();
-
-            match bytes {
-                Ok(b) => println!("Base58: {}", bs58::encode(b).into_string()),
-                Err(e) => eprintln!("Error parsing Uint8Array: {}", e),
-            }
-        }
+        Commands::Uint8ToBs58 { input } => match parse_u8_array(&input) {
+            Ok(b) => println!("Base58: {}", bs58::encode(b).into_string()),
+            Err(e) => eprintln!("Error parsing Uint8Array: {}", e),
+        },
         Commands::Bs58ToUint8 { input } => match bs58::decode(&input).into_vec() {
             Ok(bytes) => println!("Uint8Array: {:?}", bytes),
             Err(e) => eprintln!("Error decoding Base58: {}", e),
@@ -109,21 +127,9 @@ fn main() {
                     }
 
                     let kp = Keypair::new();
-                    let mut pubkey_str = kp.pubkey().to_string();
+                    let pubkey_str = kp.pubkey().to_string();
 
-                    if ignore_case {
-                        pubkey_str = pubkey_str.to_lowercase();
-                    }
-
-                    let match_start = start_prefix.is_empty()
-                        || (ignore_case && pubkey_str.starts_with(&start_prefix.to_lowercase()))
-                        || (!ignore_case && pubkey_str.starts_with(&start_prefix));
-
-                    let match_end = end_suffix.is_empty()
-                        || (ignore_case && pubkey_str.ends_with(&end_suffix.to_lowercase()))
-                        || (!ignore_case && pubkey_str.ends_with(&end_suffix));
-
-                    if match_start && match_end {
+                    if check_match(&pubkey_str, &start_prefix, &end_suffix, ignore_case) {
                         let current = found_count.fetch_add(1, Ordering::SeqCst);
                         if current < target {
                             println!("\nMatch Found:");
@@ -139,5 +145,27 @@ fn main() {
             println!("\nDone. Found {} keys in {:.2?}", count, duration);
             println!("Total attempts: {}", total_attempts.load(Ordering::Relaxed));
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_u8_array() {
+        assert_eq!(parse_u8_array("[1, 2, 3]"), Ok(vec![1, 2, 3]));
+        assert_eq!(parse_u8_array("1, 2, 3"), Ok(vec![1, 2, 3]));
+        assert_eq!(parse_u8_array(""), Ok(vec![]));
+        assert!(parse_u8_array("[256]").is_err());
+    }
+
+    #[test]
+    fn test_check_match() {
+        assert!(check_match("SoL123", "SoL", "", false));
+        assert!(!check_match("sol123", "SoL", "", false));
+        assert!(check_match("sol123", "SoL", "", true));
+        assert!(check_match("123End", "", "End", false));
+        assert!(check_match("StartEnd", "Start", "End", false));
     }
 }

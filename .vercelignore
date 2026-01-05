@@ -1,0 +1,10 @@
+# Backend/CLI tools not needed for the frontend deployment
+secret-key/node
+secret-key/rust
+
+# Documentation and config
+.gitignore
+LICENSE
+README.md
+secret-key/README.md
+

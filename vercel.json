@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/secret-key/html/index.html"
+    }
+  ]
+}
+

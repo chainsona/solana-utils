@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en" class="antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Hex Decoder — Solana Utils</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
+          extend: {
+            colors: {
+              background: "#0f172a",
+              surface: "#1e293b",
+              border: "#334155",
+              primary: "#8b5cf6",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: theme("colors.background");
+        color: #f1f5f9;
+        background-image: radial-gradient(
+          circle at 50% 0%,
+          #1e293b 0%,
+          #0f172a 70%
+        );
+        min-height: 100vh;
+      }
+      .mono-box {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .input-area {
+        background: #020617;
+        border: 1px solid theme("colors.border");
+        border-radius: 8px;
+        color: #e2e8f0;
+        transition: all 0.2s ease;
+      }
+      .input-area:focus {
+        border-color: theme("colors.primary");
+        outline: none;
+      }
+      .byte-cell {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #94a3b8;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .byte-cell:hover {
+        background: #334155;
+        color: white;
+      }
+      .byte-cell.selected {
+        background: #8b5cf6;
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="py-6 px-4 flex flex-col items-center">
+    <header class="w-full max-w-4xl flex justify-between items-center mb-8">
+      <div class="flex items-center gap-3">
+        <a
+          href="/"
+          class="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-xl flex items-center justify-center transition-colors"
+        >
+          <iconify-icon
+            icon="lucide:arrow-left"
+            width="20"
+            class="text-slate-400"
+          ></iconify-icon>
+        </a>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white">
+            Hex Decoder
+          </h1>
+          <p class="text-xs text-slate-400 font-medium">INSTRUCTION DATA INSPECTOR</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full max-w-4xl space-y-6">
+      
+      <!-- Input -->
+      <section class="space-y-2">
+          <label class="text-xs font-semibold text-slate-400 uppercase">Input (Hex or Base58)</label>
+          <textarea id="inputStr" class="input-area w-full p-4 text-xs mono-box h-24 resize-y" placeholder="Paste hex string (e.g., 2a6f...) or Base58"></textarea>
+      </section>
+
+      <!-- Viewer -->
+      <div class="grid lg:grid-cols-3 gap-6">
+          
+          <!-- Hex Grid -->
+          <section class="lg:col-span-2 bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+              <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-xs font-bold text-slate-400 uppercase">Byte View</h3>
+                  <div class="text-[10px] text-slate-500 font-mono" id="byteCount">0 bytes</div>
+              </div>
+              <div id="hexGrid" class="grid grid-cols-[repeat(auto-fill,minmax(24px,1fr))] gap-1 mono-box">
+                  <!-- Bytes injected here -->
+                  <div class="text-xs text-slate-600 italic p-2 col-span-full">No data...</div>
+              </div>
+          </section>
+
+          <!-- Inspector Panel -->
+          <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 h-fit sticky top-4">
+              <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Inspector</h3>
+              
+              <div id="inspectorContent" class="space-y-4 opacity-50 pointer-events-none">
+                  <div class="space-y-1">
+                      <label class="text-[10px] text-slate-500 uppercase">Selection</label>
+                      <div class="text-xs font-mono text-white" id="selRange">-</div>
+                  </div>
+                  
+                   <div class="space-y-1">
+                      <label class="text-[10px] text-slate-500 uppercase">u8 / i8</label>
+                      <div class="text-sm font-mono text-emerald-400 break-all" id="valU8">-</div>
+                  </div>
+
+                  <div class="space-y-1">
+                      <label class="text-[10px] text-slate-500 uppercase">u16 (LE)</label>
+                      <div class="text-sm font-mono text-emerald-400 break-all" id="valU16">-</div>
+                  </div>
+
+                  <div class="space-y-1">
+                      <label class="text-[10px] text-slate-500 uppercase">u32 (LE)</label>
+                      <div class="text-sm font-mono text-emerald-400 break-all" id="valU32">-</div>
+                  </div>
+                  
+                  <div class="space-y-1">
+                      <label class="text-[10px] text-slate-500 uppercase">u64 (LE)</label>
+                      <div class="text-sm font-mono text-emerald-400 break-all" id="valU64">-</div>
+                  </div>
+
+                  <div class="space-y-1 pt-2 border-t border-slate-800">
+                      <label class="text-[10px] text-slate-500 uppercase">Pubkey (32 bytes)</label>
+                      <div class="text-xs font-mono text-amber-400 break-all leading-tight" id="valPubkey">-</div>
+                  </div>
+                  
+                   <div class="space-y-1">
+                      <label class="text-[10px] text-slate-500 uppercase">String (UTF-8)</label>
+                      <div class="text-xs font-mono text-blue-400 break-all" id="valString">-</div>
+                  </div>
+              </div>
+          </section>
+
+      </div>
+
+    </main>
+
+    <footer class="mt-auto py-8 text-center text-slate-600 text-[10px] font-bold tracking-widest uppercase">
+      <p>Soona • No Server Data</p>
+    </footer>
+
+    <script type="module">
+      import { PublicKey } from "https://esm.sh/@solana/web3.js@1.98.0";
+      import bs58 from "https://esm.sh/bs58@6.0.0";
+      import { Buffer } from "https://esm.sh/buffer@6.0.3";
+      import BN from "https://esm.sh/bn.js@5.2.1";
+
+      const inputStr = document.getElementById("inputStr");
+      const hexGrid = document.getElementById("hexGrid");
+      const inspector = document.getElementById("inspectorContent");
+      
+      let currentBuffer = null;
+      let selectionStart = null;
+      let selectionEnd = null;
+
+      inputStr.addEventListener("input", (e) => {
+        const val = e.target.value.trim();
+        if(!val) {
+            currentBuffer = null;
+            renderGrid();
+            return;
+        }
+
+        try {
+            // Try hex first (if mostly hex chars)
+            const isHex = /^[0-9a-fA-F]+$/.test(val);
+            if(isHex && val.length % 2 === 0) {
+                 currentBuffer = Buffer.from(val, "hex");
+            } else {
+                 // Try base58
+                 currentBuffer = Buffer.from(bs58.decode(val));
+            }
+        } catch(e) {
+            // Fallback to empty
+             currentBuffer = null;
+        }
+        renderGrid();
+      });
+
+      function renderGrid() {
+        hexGrid.innerHTML = "";
+        selectionStart = null;
+        selectionEnd = null;
+        updateInspector();
+
+        if(!currentBuffer) {
+            hexGrid.innerHTML = `<div class="text-xs text-slate-600 italic p-2 col-span-full">Invalid or empty data...</div>`;
+            document.getElementById("byteCount").textContent = "0 bytes";
+            return;
+        }
+        
+        document.getElementById("byteCount").textContent = `${currentBuffer.length} bytes`;
+
+        const frag = document.createDocumentFragment();
+        for(let i=0; i<currentBuffer.length; i++) {
+            const el = document.createElement("div");
+            el.className = "byte-cell";
+            el.textContent = currentBuffer[i].toString(16).padStart(2, "0");
+            el.dataset.idx = i;
+            el.onmousedown = (e) => handleMouseDown(i, e);
+            el.onmouseenter = (e) => handleMouseEnter(i, e);
+            frag.appendChild(el);
+        }
+        hexGrid.appendChild(frag);
+      }
+
+      let isDragging = false;
+      
+      function handleMouseDown(idx, e) {
+          isDragging = true;
+          selectionStart = idx;
+          selectionEnd = idx;
+          updateSelectionVisuals();
+          updateInspector();
+      }
+
+      function handleMouseEnter(idx, e) {
+          if(isDragging) {
+              selectionEnd = idx;
+              updateSelectionVisuals();
+              updateInspector();
+          }
+      }
+
+      document.addEventListener("mouseup", () => isDragging = false);
+
+      function updateSelectionVisuals() {
+          if(selectionStart === null) return;
+          const start = Math.min(selectionStart, selectionEnd);
+          const end = Math.max(selectionStart, selectionEnd);
+          
+          const cells = hexGrid.children;
+          for(let i=0; i<cells.length; i++) {
+              if(i >= start && i <= end) cells[i].classList.add("selected");
+              else cells[i].classList.remove("selected");
+          }
+      }
+
+      function updateInspector() {
+          if(selectionStart === null || !currentBuffer) {
+              inspector.classList.add("opacity-50", "pointer-events-none");
+              return;
+          }
+          inspector.classList.remove("opacity-50", "pointer-events-none");
+          
+          const start = Math.min(selectionStart, selectionEnd);
+          const end = Math.max(selectionStart, selectionEnd);
+          const len = end - start + 1;
+          const slice = currentBuffer.slice(start, end + 1);
+
+          document.getElementById("selRange").textContent = `[${start}:${end}] (${len} bytes)`;
+          
+          // u8
+          document.getElementById("valU8").textContent = slice.length >= 1 ? slice[0] : "-";
+          
+          // u16
+          try { document.getElementById("valU16").textContent = slice.length >= 2 ? slice.readUInt16LE(0) : "-"; } catch { document.getElementById("valU16").textContent = "-"; }
+
+          // u32
+          try { document.getElementById("valU32").textContent = slice.length >= 4 ? slice.readUInt32LE(0) : "-"; } catch { document.getElementById("valU32").textContent = "-"; }
+
+          // u64
+          try { document.getElementById("valU64").textContent = slice.length >= 8 ? new BN(slice.slice(0, 8), "le").toString() : "-"; } catch { document.getElementById("valU64").textContent = "-"; }
+          
+          // Pubkey
+          try { document.getElementById("valPubkey").textContent = slice.length === 32 ? new PublicKey(slice).toBase58() : "-"; } catch { document.getElementById("valPubkey").textContent = "-"; }
+
+          // String
+          const str = slice.toString("utf-8");
+          // Simple printable check
+          const isPrintable = /^[\x20-\x7E]*$/.test(str);
+          document.getElementById("valString").textContent = isPrintable ? `"${str}"` : "(binary)";
+      }
+
+    </script>
+  </body>
+</html>
+

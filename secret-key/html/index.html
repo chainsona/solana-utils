@@ -5,76 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Solana Secret Key Utils</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              slate: {
+                850: "#172033",
+                900: "#0f172a",
+                950: "#020617",
+              },
+            },
+          },
+        },
+      };
+    </script>
     <style>
       body {
-        font-family: "Inter", sans-serif;
-        background-color: #0f172a;
-        color: #e2e8f0;
+        background-color: #020617;
+        color: #f8fafc;
       }
       .card {
-        background-color: #1e293b;
-        border: 1px solid #334155;
-      }
-      .btn-primary {
-        background-color: #3b82f6;
-        transition: all 0.2s;
-      }
-      .btn-primary:hover {
-        background-color: #2563eb;
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(148, 163, 184, 0.1);
       }
       .input-field {
-        background-color: #0f172a;
-        border: 1px solid #334155;
-        color: white;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        transition: all 0.2s ease;
       }
       .input-field:focus {
-        outline: none;
         border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        outline: none;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        transition: all 0.2s ease;
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
+      }
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+      .btn-purple {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+        transition: all 0.2s ease;
+      }
+      .btn-purple:hover {
+        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
+      }
+      .btn-pink {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        box-shadow: 0 4px 6px -1px rgba(219, 39, 119, 0.2);
+        transition: all 0.2s ease;
+      }
+      .btn-pink:hover {
+        background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 8px -1px rgba(219, 39, 119, 0.3);
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
       }
     </style>
   </head>
-  <body class="min-h-screen p-8 flex flex-col items-center">
-    <div class="max-w-3xl w-full space-y-8">
-      <h1
-        class="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400"
-      >
-        Solana Key Utils
-      </h1>
+  <body class="min-h-screen p-6 md:p-12 flex flex-col items-center selection:bg-blue-500/30">
+    <div class="max-w-4xl w-full space-y-8">
+      <!-- Header -->
+      <div class="text-center space-y-2 mb-12">
+        <h1 class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400 tracking-tight pb-2">
+          Solana Key Utils
+        </h1>
+        <p class="text-slate-400 font-medium">Secure. Fast. Client-side.</p>
+      </div>
 
       <!-- 1. Generate New Key -->
-      <div class="card p-6 rounded-xl shadow-lg">
-        <h2 class="text-xl font-semibold mb-4 text-blue-300">
-          Generate New Keypair
-        </h2>
+      <div class="card p-8 rounded-2xl shadow-xl border-t border-blue-500/10">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-semibold text-blue-400 flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Generate Keypair
+          </h2>
+        </div>
+        
         <button
           id="genBtn"
-          class="btn-primary px-4 py-2 rounded text-white font-medium w-full"
+          class="btn-primary px-6 py-3 rounded-lg text-white font-semibold w-full text-lg tracking-wide"
         >
-          Generate
+          Generate New Wallet
         </button>
-        <div id="genResult" class="mt-4 hidden space-y-2">
-          <div>
-            <label class="text-xs text-gray-400 uppercase">Public Key</label>
+
+        <div id="genResult" class="mt-6 hidden space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div class="group relative">
+            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">Public Key</label>
             <div
-              class="font-mono text-sm break-all bg-black/30 p-2 rounded text-emerald-400"
+              class="font-mono text-sm break-all bg-slate-900/50 p-4 rounded-lg text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 transition-colors"
               id="genPub"
             ></div>
           </div>
           <div>
-            <label class="text-xs text-gray-400 uppercase"
-              >Secret Key (Base58)</label
-            >
+            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">Secret Key (Base58)</label>
             <div
-              class="font-mono text-sm break-all bg-black/30 p-2 rounded text-yellow-400"
+              class="font-mono text-sm break-all bg-slate-900/50 p-4 rounded-lg text-yellow-400 border border-yellow-500/20"
               id="genPriv58"
             ></div>
           </div>
           <div>
-            <label class="text-xs text-gray-400 uppercase"
-              >Secret Key (Uint8 Array)</label
-            >
+            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">Secret Key (Uint8 Array)</label>
             <div
-              class="font-mono text-xs break-all bg-black/30 p-2 rounded text-gray-300"
+              class="font-mono text-xs break-all bg-slate-900/50 p-4 rounded-lg text-slate-400 border border-slate-700/30"
               id="genPriv8"
             ></div>
           </div>
@@ -82,94 +150,101 @@
       </div>
 
       <!-- 2. Converters -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Uint8 to Base58 -->
-        <div class="card p-6 rounded-xl shadow-lg">
-          <h2 class="text-lg font-semibold mb-4 text-purple-300">
+        <div class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full">
+          <h2 class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
             Uint8Array &rarr; Base58
           </h2>
           <textarea
             id="u8Input"
-            class="input-field w-full h-24 p-3 rounded mb-3 text-xs font-mono"
-            placeholder="[12, 34, ...]"
+            class="input-field w-full h-32 p-4 rounded-lg mb-4 text-xs font-mono text-slate-300 resize-none"
+            placeholder="[12, 34, 56, ...]"
           ></textarea>
           <button
             id="u8Btn"
-            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full transition-colors"
+            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto"
           >
             Convert
           </button>
           <div
             id="u8Result"
-            class="mt-3 font-mono text-sm break-all text-yellow-400 min-h-[1.5rem]"
+            class="mt-4 font-mono text-sm break-all text-yellow-400 min-h-[1.5rem] bg-slate-900/30 p-3 rounded-lg border border-white/5"
           ></div>
         </div>
 
         <!-- Base58 to Uint8 -->
-        <div class="card p-6 rounded-xl shadow-lg">
-          <h2 class="text-lg font-semibold mb-4 text-purple-300">
+        <div class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full">
+          <h2 class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
             Base58 &rarr; Uint8Array
           </h2>
           <textarea
             id="b58Input"
-            class="input-field w-full h-24 p-3 rounded mb-3 text-xs font-mono"
-            placeholder="Base58 string..."
+            class="input-field w-full h-32 p-4 rounded-lg mb-4 text-xs font-mono text-slate-300 resize-none"
+            placeholder="5K3s..."
           ></textarea>
           <button
             id="b58Btn"
-            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full transition-colors"
+            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto"
           >
             Convert
           </button>
           <div
             id="b58Result"
-            class="mt-3 font-mono text-xs break-all text-gray-300 min-h-[1.5rem]"
+            class="mt-4 font-mono text-xs break-all text-slate-300 min-h-[1.5rem] bg-slate-900/30 p-3 rounded-lg border border-white/5"
           ></div>
         </div>
       </div>
 
       <!-- 3. Grinder -->
-      <div class="card p-6 rounded-xl shadow-lg">
-        <h2 class="text-xl font-semibold mb-4 text-pink-300">
-          Vanity Address Grinder
+      <div class="card p-8 rounded-2xl shadow-xl border-t border-pink-500/10">
+        <h2 class="text-2xl font-semibold mb-6 text-pink-400 flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            Vanity Address Grinder
         </h2>
-        <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-2 gap-6 mb-6">
           <div>
-            <label class="block text-sm text-gray-400 mb-1">Starts with</label>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Starts with</label>
             <input
               type="text"
               id="grindStart"
-              class="input-field w-full p-2 rounded"
-              placeholder="e.g. sol"
+              class="input-field w-full p-3 rounded-lg text-white font-mono placeholder:text-slate-600"
+              placeholder="sol"
             />
           </div>
           <div>
-            <label class="block text-sm text-gray-400 mb-1">Ends with</label>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ends with</label>
             <input
               type="text"
               id="grindEnd"
-              class="input-field w-full p-2 rounded"
-              placeholder="e.g. ana"
+              class="input-field w-full p-3 rounded-lg text-white font-mono placeholder:text-slate-600"
+              placeholder="ana"
             />
           </div>
         </div>
         <button
           id="grindBtn"
-          class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded w-full transition-colors font-medium"
+          class="btn-pink text-white px-6 py-3 rounded-lg w-full font-semibold text-lg tracking-wide"
         >
           Start Grinding
         </button>
         <div
           id="grindStatus"
-          class="mt-2 text-center text-sm text-gray-400 h-6"
+          class="mt-3 text-center text-sm text-slate-400 h-6 font-mono"
         ></div>
 
         <div
           id="grindResults"
-          class="mt-4 space-y-2 max-h-60 overflow-y-auto hidden"
+          class="mt-6 space-y-3 max-h-80 overflow-y-auto hidden pr-2"
         >
           <!-- Results go here -->
         </div>
+      </div>
+      
+      <div class="text-center text-slate-600 text-sm mt-12 pb-6">
+        <p>🔒 All operations run entirely in your browser. No data leaves this page.</p>
       </div>
     </div>
 
@@ -238,7 +313,7 @@
           const status = document.getElementById("grindStatus");
           const results = document.getElementById("grindResults");
 
-          btn.textContent = "Grinding... (Check Console for Speed)";
+          btn.textContent = "Grinding...";
           btn.classList.add("opacity-50", "cursor-not-allowed");
           results.innerHTML = "";
           results.classList.remove("hidden");
@@ -259,10 +334,10 @@
               if (matchStart && matchEnd) {
                 const div = document.createElement("div");
                 div.className =
-                  "bg-black/30 p-2 rounded border border-pink-900/50";
+                  "bg-slate-900/50 p-4 rounded-lg border border-pink-500/20 animate-in fade-in slide-in-from-left-4";
                 div.innerHTML = `
-                            <div class="text-emerald-400 font-mono text-sm">${pub}</div>
-                            <div class="text-xs text-gray-500 truncate mt-1">${bs58.encode(kp.secretKey)}</div>
+                            <div class="text-emerald-400 font-mono text-sm break-all">${pub}</div>
+                            <div class="text-xs text-slate-500 truncate mt-2 font-mono">${bs58.encode(kp.secretKey)}</div>
                         `;
                 results.prepend(div);
 
@@ -270,7 +345,7 @@
                 isGrinding = false;
                 btn.textContent = "Start Grinding";
                 btn.classList.remove("opacity-50", "cursor-not-allowed");
-                status.textContent = `Found in ${(Date.now() - startTime) / 1000}s after ${attempts} attempts`;
+                status.textContent = `Found in ${(Date.now() - startTime) / 1000}s after ${attempts.toLocaleString()} attempts`;
                 return;
               }
               attempts++;

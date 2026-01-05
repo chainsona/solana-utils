@@ -5,7 +5,9 @@ A collection of high-performance utilities and tools for Solana development.
 ## 🛠️ Tools
 
 ### [Secret Key Utils](./secret-key)
+
 A comprehensive suite for managing Solana secret keys.
+
 - **Implementations:** Node.js CLI, Rust CLI, HTML/JS Web App
 - **Features:**
   - Keypair generation
@@ -22,5 +24,5 @@ solana-utils/
 ```
 
 ## 📄 License
-MIT
 
+MIT

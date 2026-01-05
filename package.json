@@ -1,0 +1,8 @@
+{
+  "name": "solana-utils-root",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p public && cp secret-key/html/index.html public/index.html"
+  }
+}
+

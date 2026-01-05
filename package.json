@@ -2,6 +2,6 @@
   "name": "solana-utils-root",
   "private": true,
   "scripts": {
-    "build": "mkdir -p dist/secret-key dist/rent-calc dist/pda-finder dist/hex-decoder && cp public/index.html dist/index.html && cp secret-key/html/index.html dist/secret-key/index.html && cp rent-calc/index.html dist/rent-calc/index.html && cp pda-finder/index.html dist/pda-finder/index.html && cp hex-decoder/index.html dist/hex-decoder/index.html"
+    "build": "mkdir -p dist/secret-key dist/rent-calc dist/pda-finder dist/hex-decoder dist/assets && cp public/index.html dist/index.html && cp public/assets/favicon.svg dist/assets/favicon.svg && cp secret-key/html/index.html dist/secret-key/index.html && cp rent-calc/index.html dist/rent-calc/index.html && cp pda-finder/index.html dist/pda-finder/index.html && cp hex-decoder/index.html dist/hex-decoder/index.html"
   }
 }

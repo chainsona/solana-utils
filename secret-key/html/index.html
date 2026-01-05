@@ -1,44 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="antialiased">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Solana Secret Key Utils</title>
+    <title>Solana Key Utils</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap"
       rel="stylesheet"
     />
-    <!-- Iconify for icons -->
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script>
       tailwind.config = {
         theme: {
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
           extend: {
-            fontFamily: {
-              sans: ["Inter", "sans-serif"],
-              mono: ["JetBrains Mono", "monospace"],
-            },
             colors: {
-              slate: {
-                850: "#172033",
-                900: "#0f172a",
-                950: "#020617",
-              },
-            },
-            animation: {
-              "fade-in": "fadeIn 0.2s ease-in-out",
-              "slide-up": "slideUp 0.3s ease-out",
-            },
-            keyframes: {
-              fadeIn: {
-                "0%": { opacity: "0" },
-                "100%": { opacity: "1" },
-              },
-              slideUp: {
-                "0%": { transform: "translateY(10px)", opacity: "0" },
-                "100%": { transform: "translateY(0)", opacity: "1" },
-              },
+              background: "#050505",
+              surface: "#0A0A0A",
+              border: "#262626",
+              accent: "#FFFFFF",
             },
           },
         },
@@ -46,570 +30,387 @@
     </script>
     <style>
       body {
-        background-color: #020617;
-        color: #f8fafc;
+        background-color: theme("colors.background");
+        color: #e5e5e5;
       }
-      .card {
-        background: rgba(30, 41, 59, 0.4);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(148, 163, 184, 0.1);
+      .mono-box {
+        font-family: "JetBrains Mono", monospace;
+        letter-spacing: -0.5px;
       }
-      .input-field {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(148, 163, 184, 0.1);
-        transition: all 0.2s ease;
+      .btn {
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      .input-field:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-        outline: none;
+      .btn:active {
+        transform: scale(0.98);
       }
-      .btn-primary {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-        transition: all 0.2s ease;
-      }
-      .btn-primary:hover {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
-      }
-      .btn-primary:active {
-        transform: translateY(0);
-      }
-      .btn-purple {
-        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-        box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
-        transition: all 0.2s ease;
-      }
-      .btn-purple:hover {
-        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3);
-      }
-      .btn-pink {
-        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-        box-shadow: 0 4px 6px -1px rgba(219, 39, 119, 0.2);
-        transition: all 0.2s ease;
-      }
-      .btn-pink:hover {
-        background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 8px -1px rgba(219, 39, 119, 0.3);
-      }
-      .btn-icon {
-        @apply p-2 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors;
-      }
-      /* Custom Scrollbar */
+      /* Minimal scrollbar */
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #0f172a;
+        background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 4px;
+        background: #333;
+        border-radius: 3px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
+        background: #555;
       }
     </style>
   </head>
-  <body
-    class="min-h-screen p-6 md:p-12 flex flex-col items-center selection:bg-blue-500/30"
-  >
-    <div class="max-w-4xl w-full space-y-8 relative">
+  <body class="min-h-screen py-20 px-4 flex flex-col items-center">
+    <div class="max-w-2xl w-full space-y-16">
       <!-- Header -->
-      <div class="text-center space-y-2 mb-12">
-        <h1
-          class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400 tracking-tight pb-2"
-        >
-          Solana Key Utils
-        </h1>
-        <p class="text-slate-400 font-medium">Secure. Fast. Client-side.</p>
-      </div>
+      <header class="flex items-start justify-between border-b border-border pb-6">
+        <div>
+          <h1 class="text-xl font-medium tracking-tight text-white">
+            Solana Key Utils
+          </h1>
+          <p class="text-sm text-neutral-500 mt-1">
+            Cryptographic primitives & vanity mining
+          </p>
+        </div>
+        <div class="text-xs text-neutral-600 font-mono text-right">
+          v1.0.0<br />Client-side
+        </div>
+      </header>
 
-      <!-- 1. Generate New Key -->
-      <div class="card p-8 rounded-2xl shadow-xl border-t border-blue-500/10">
-        <div class="flex items-center justify-between mb-6">
-          <h2
-            class="text-2xl font-semibold text-blue-400 flex items-center gap-2"
-          >
-            <iconify-icon icon="lucide:plus-circle"></iconify-icon>
-            Generate Keypair
+      <!-- 1. Generator -->
+      <section class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-medium text-neutral-400 uppercase tracking-widest">
+            Generator
           </h2>
+          <button
+            id="genBtn"
+            class="btn bg-white text-black px-4 py-2 text-sm font-medium hover:bg-neutral-200 flex items-center gap-2"
+          >
+            <iconify-icon icon="lucide:plus"></iconify-icon>
+            Create Keypair
+          </button>
         </div>
 
-        <button
-          id="genBtn"
-          class="btn-primary px-6 py-3 rounded-lg text-white font-semibold w-full text-lg tracking-wide flex items-center justify-center gap-2"
-        >
-          <iconify-icon icon="lucide:sparkles"></iconify-icon>
-          Generate New Wallet
-        </button>
-
-        <div
-          id="genResult"
-          class="mt-6 hidden space-y-4 animate-in fade-in slide-in-from-top-4 duration-300"
-        >
+        <div id="genResult" class="hidden space-y-4">
           <!-- Public Key -->
-          <div class="group relative">
-            <div class="flex justify-between items-end mb-1.5 ml-1">
-              <label
-                class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                >Public Key</label
-              >
+          <div class="group">
+            <div class="flex justify-between items-end mb-2">
+              <label class="text-xs text-neutral-500">Public Address</label>
               <button
-                class="btn-icon copy-btn"
+                class="copy-btn text-neutral-500 hover:text-white transition-colors"
                 data-target="genPub"
-                title="Copy Public Key"
               >
                 <iconify-icon icon="lucide:copy"></iconify-icon>
               </button>
             </div>
             <div
-              class="font-mono text-sm break-all bg-slate-900/50 p-4 rounded-lg text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 transition-colors"
+              class="mono-box bg-surface border border-border p-4 text-sm text-neutral-300 break-all"
               id="genPub"
             ></div>
           </div>
 
-          <!-- Secret Key Base58 -->
-          <div>
-            <div class="flex justify-between items-end mb-1.5 ml-1">
-              <label
-                class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                >Secret Key (Base58)</label
-              >
-              <div class="flex gap-1">
+          <!-- Secret Key (Base58) -->
+          <div class="group">
+            <div class="flex justify-between items-end mb-2">
+              <label class="text-xs text-neutral-500">Secret Key (Base58)</label>
+              <div class="flex gap-3 text-neutral-500">
                 <button
-                  class="btn-icon toggle-visibility-btn"
+                  class="toggle-visibility-btn hover:text-white transition-colors"
                   data-target="genPriv58"
-                  title="Show/Hide"
                 >
                   <iconify-icon icon="lucide:eye"></iconify-icon>
                 </button>
                 <button
-                  class="btn-icon copy-btn"
+                  class="copy-btn hover:text-white transition-colors"
                   data-target="genPriv58"
-                  title="Copy Secret Key"
-                >
-                  <iconify-icon icon="lucide:copy"></iconify-icon>
-                </button>
-              </div>
-            </div>
-            <div class="relative">
-              <div
-                class="font-mono text-sm break-all bg-slate-900/50 p-4 rounded-lg text-yellow-400 border border-yellow-500/20 blur-sm transition-all duration-200 select-none"
-                id="genPriv58"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Secret Key Uint8 -->
-          <div>
-            <div class="flex justify-between items-end mb-1.5 ml-1">
-              <label
-                class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                >Secret Key (Uint8 Array)</label
-              >
-              <div class="flex gap-1">
-                <button
-                  class="btn-icon toggle-visibility-btn"
-                  data-target="genPriv8"
-                  title="Show/Hide"
-                >
-                  <iconify-icon icon="lucide:eye"></iconify-icon>
-                </button>
-                <button
-                  class="btn-icon copy-btn"
-                  data-target="genPriv8"
-                  title="Copy Array"
                 >
                   <iconify-icon icon="lucide:copy"></iconify-icon>
                 </button>
               </div>
             </div>
             <div
-              class="font-mono text-xs break-all bg-slate-900/50 p-4 rounded-lg text-slate-400 border border-slate-700/30 blur-sm transition-all duration-200 select-none"
+              class="mono-box bg-surface border border-border p-4 text-sm text-neutral-300 break-all blur-sm transition-all duration-300 select-none"
+              id="genPriv58"
+            ></div>
+          </div>
+
+          <!-- Secret Key (Uint8) -->
+          <div class="group">
+            <div class="flex justify-between items-end mb-2">
+              <label class="text-xs text-neutral-500">Secret Key (Array)</label>
+              <div class="flex gap-3 text-neutral-500">
+                <button
+                  class="toggle-visibility-btn hover:text-white transition-colors"
+                  data-target="genPriv8"
+                >
+                  <iconify-icon icon="lucide:eye"></iconify-icon>
+                </button>
+                <button
+                  class="copy-btn hover:text-white transition-colors"
+                  data-target="genPriv8"
+                >
+                  <iconify-icon icon="lucide:copy"></iconify-icon>
+                </button>
+              </div>
+            </div>
+            <div
+              class="mono-box bg-surface border border-border p-4 text-xs text-neutral-400 break-all blur-sm transition-all duration-300 select-none leading-relaxed"
               id="genPriv8"
             ></div>
           </div>
 
-          <!-- Actions -->
           <div class="pt-2 flex justify-end">
             <button
               id="downloadBtn"
-              class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              class="text-xs text-neutral-500 hover:text-white flex items-center gap-1.5 transition-colors"
             >
               <iconify-icon icon="lucide:download"></iconify-icon>
-              Save Keypair (JSON)
+              Save id.json
             </button>
           </div>
         </div>
-      </div>
+      </section>
+
+      <div class="h-px bg-border w-full"></div>
 
       <!-- 2. Converters -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Uint8 to Base58 -->
-        <div
-          class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full"
-        >
-          <h2
-            class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2"
-          >
-            <iconify-icon icon="lucide:arrow-right-left"></iconify-icon>
-            Uint8Array &rarr; Base58
-          </h2>
-          <textarea
-            id="u8Input"
-            class="input-field w-full h-32 p-4 rounded-lg mb-4 text-xs font-mono text-slate-300 resize-none"
-            placeholder="[12, 34, 56, ...]"
-          ></textarea>
-          <button
-            id="u8Btn"
-            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto flex items-center justify-center gap-2"
-          >
-            Convert
-          </button>
-          <div class="relative mt-4 group">
-            <div
-              id="u8Result"
-              class="font-mono text-sm break-all text-yellow-400 min-h-[3rem] bg-slate-900/30 p-3 rounded-lg border border-white/5 pr-10"
-            ></div>
-            <button
-              class="btn-icon copy-btn absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              data-target="u8Result"
-            >
-              <iconify-icon icon="lucide:copy"></iconify-icon>
-            </button>
-          </div>
-        </div>
+      <section class="space-y-8">
+        <h2 class="text-sm font-medium text-neutral-400 uppercase tracking-widest">
+          Conversion
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Uint8 -> Base58 -->
+            <div class="space-y-4">
+                <label class="text-xs text-neutral-500 block">Uint8Array Input</label>
+                <textarea 
+                    id="u8Input"
+                    class="w-full bg-surface border border-border p-3 text-xs mono-box text-neutral-300 focus:border-neutral-500 focus:outline-none transition-colors h-24 resize-none placeholder:text-neutral-700"
+                    placeholder="[12, 34, ...]"
+                ></textarea>
+                <div class="flex items-center justify-between">
+                    <button id="u8Btn" class="btn text-xs bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5">Format</button>
+                    <div class="h-px bg-border flex-grow mx-4"></div>
+                    <iconify-icon icon="lucide:arrow-down" class="text-neutral-600"></iconify-icon>
+                </div>
+                <div class="relative group">
+                    <div id="u8Result" class="mono-box text-sm text-neutral-400 break-all min-h-[1.5rem]"></div>
+                     <button class="copy-btn absolute -right-6 top-0 text-neutral-600 hover:text-white opacity-0 group-hover:opacity-100 transition-all" data-target="u8Result">
+                        <iconify-icon icon="lucide:copy"></iconify-icon>
+                    </button>
+                </div>
+            </div>
 
-        <!-- Base58 to Uint8 -->
-        <div
-          class="card p-8 rounded-2xl shadow-xl border-t border-purple-500/10 flex flex-col h-full"
-        >
-          <h2
-            class="text-xl font-semibold mb-6 text-purple-400 flex items-center gap-2"
-          >
-            <iconify-icon icon="lucide:arrow-right-left"></iconify-icon>
-            Base58 &rarr; Uint8Array
-          </h2>
-          <textarea
-            id="b58Input"
-            class="input-field w-full h-32 p-4 rounded-lg mb-4 text-xs font-mono text-slate-300 resize-none"
-            placeholder="5K3s..."
-          ></textarea>
-          <button
-            id="b58Btn"
-            class="btn-purple text-white px-6 py-2.5 rounded-lg font-medium w-full mt-auto flex items-center justify-center gap-2"
-          >
-            Convert
-          </button>
-          <div class="relative mt-4 group">
-            <div
-              id="b58Result"
-              class="font-mono text-xs break-all text-slate-300 min-h-[3rem] bg-slate-900/30 p-3 rounded-lg border border-white/5 pr-10"
-            ></div>
-            <button
-              class="btn-icon copy-btn absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              data-target="b58Result"
-            >
-              <iconify-icon icon="lucide:copy"></iconify-icon>
-            </button>
-          </div>
+             <!-- Base58 -> Uint8 -->
+             <div class="space-y-4">
+                <label class="text-xs text-neutral-500 block">Base58 Input</label>
+                <textarea 
+                    id="b58Input"
+                    class="w-full bg-surface border border-border p-3 text-xs mono-box text-neutral-300 focus:border-neutral-500 focus:outline-none transition-colors h-24 resize-none placeholder:text-neutral-700"
+                    placeholder="5K3s..."
+                ></textarea>
+                <div class="flex items-center justify-between">
+                    <button id="b58Btn" class="btn text-xs bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5">Parse</button>
+                    <div class="h-px bg-border flex-grow mx-4"></div>
+                    <iconify-icon icon="lucide:arrow-down" class="text-neutral-600"></iconify-icon>
+                </div>
+                <div class="relative group">
+                    <div id="b58Result" class="mono-box text-xs text-neutral-400 break-all min-h-[1.5rem] leading-relaxed"></div>
+                    <button class="copy-btn absolute -right-6 top-0 text-neutral-600 hover:text-white opacity-0 group-hover:opacity-100 transition-all" data-target="b58Result">
+                        <iconify-icon icon="lucide:copy"></iconify-icon>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
+      </section>
+
+      <div class="h-px bg-border w-full"></div>
 
       <!-- 3. Grinder -->
-      <div class="card p-8 rounded-2xl shadow-xl border-t border-pink-500/10">
-        <h2
-          class="text-2xl font-semibold mb-6 text-pink-400 flex items-center gap-2"
-        >
-          <iconify-icon icon="lucide:pickaxe"></iconify-icon>
-          Vanity Address Grinder
-        </h2>
-        <div class="grid grid-cols-2 gap-6 mb-6">
-          <div>
-            <label
-              class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2"
-              >Starts with</label
-            >
-            <input
-              type="text"
-              id="grindStart"
-              class="input-field w-full p-3 rounded-lg text-white font-mono placeholder:text-slate-600"
-              placeholder="sol"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2"
-              >Ends with</label
-            >
-            <input
-              type="text"
-              id="grindEnd"
-              class="input-field w-full p-3 rounded-lg text-white font-mono placeholder:text-slate-600"
-              placeholder="ana"
-            />
-          </div>
+      <section class="space-y-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-medium text-neutral-400 uppercase tracking-widest">
+              Vanity Mining
+            </h2>
+            <div id="grindStatus" class="text-xs font-mono text-neutral-500"></div>
         </div>
-        <button
-          id="grindBtn"
-          class="btn-pink text-white px-6 py-3 rounded-lg w-full font-semibold text-lg tracking-wide flex items-center justify-center gap-2"
-        >
-          Start Grinding
-        </button>
-        <div
-          id="grindStatus"
-          class="mt-3 text-center text-sm text-slate-400 h-6 font-mono"
-        ></div>
 
-        <div
-          id="grindResults"
-          class="mt-6 space-y-3 max-h-80 overflow-y-auto hidden pr-2"
-        >
-          <!-- Results go here -->
+        <div class="flex items-end gap-4">
+            <div class="flex-1 space-y-2">
+                <label class="text-xs text-neutral-500">Prefix</label>
+                <input type="text" id="grindStart" class="w-full bg-surface border-b border-border p-2 text-sm mono-box text-white focus:border-white focus:outline-none transition-colors placeholder:text-neutral-800" placeholder="sol">
+            </div>
+            <div class="flex-1 space-y-2">
+                <label class="text-xs text-neutral-500">Suffix</label>
+                <input type="text" id="grindEnd" class="w-full bg-surface border-b border-border p-2 text-sm mono-box text-white focus:border-white focus:outline-none transition-colors placeholder:text-neutral-800" placeholder="ana">
+            </div>
+            <button id="grindBtn" class="btn bg-white text-black px-6 py-2 text-sm font-medium hover:bg-neutral-200 h-[38px]">
+                Start
+            </button>
         </div>
-      </div>
 
-      <div class="text-center text-slate-600 text-sm mt-12 pb-6">
-        <p>
-          🔒 All operations run entirely in your browser. No data leaves this
-          page.
-        </p>
-      </div>
+        <div id="grindResults" class="space-y-3 hidden pt-4">
+            <!-- Results appended here -->
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="text-center pt-20 pb-8">
+        <p class="text-[10px] text-neutral-700 uppercase tracking-widest">Secure • Offline • Open Source</p>
+      </footer>
     </div>
 
-    <!-- Toast Container -->
-    <div
-      id="toastContainer"
-      class="fixed bottom-6 right-6 flex flex-col gap-2 z-50 pointer-events-none"
-    ></div>
+    <!-- Minimal Toast -->
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50 pointer-events-none"></div>
 
     <script type="module">
-      import { Keypair } from "https://esm.sh/@solana/web3.js@1.98.0";
-      import bs58 from "https://esm.sh/bs58@6.0.0";
+        import { Keypair } from "https://esm.sh/@solana/web3.js@1.98.0";
+        import bs58 from "https://esm.sh/bs58@6.0.0";
 
-      // Helper: Uint8Array to string
-      const u8ToStr = (u8) => `[${u8.toString()}]`;
+        const u8ToStr = (u8) => `[${u8.toString()}]`;
 
-      // Toast Notification System
-      function showToast(message, type = "success") {
-        const container = document.getElementById("toastContainer");
-        const toast = document.createElement("div");
-        const colors =
-          type === "success"
-            ? "bg-emerald-500/90 text-white"
-            : "bg-red-500/90 text-white";
-        const icon =
-          type === "success" ? "lucide:check-circle" : "lucide:alert-circle";
+        function showToast(message) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "bg-white text-black text-xs font-medium px-4 py-2 shadow-xl animate-fade-in pointer-events-auto border border-neutral-200";
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 200);
+            }, 2000);
+        }
 
-        toast.className = `${colors} px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0 pointer-events-auto min-w-[200px]`;
-        toast.innerHTML = `
-                <iconify-icon icon="${icon}" width="20"></iconify-icon>
-                <span class="font-medium text-sm">${message}</span>
-            `;
-
-        container.appendChild(toast);
-
-        // Animate in
-        requestAnimationFrame(() => {
-          toast.classList.remove("translate-y-10", "opacity-0");
+        // Copy
+        document.addEventListener("click", (e) => {
+            const btn = e.target.closest(".copy-btn");
+            if (!btn) return;
+            const targetId = btn.dataset.target;
+            const targetEl = document.getElementById(targetId);
+            if (targetEl && targetEl.textContent) {
+                navigator.clipboard.writeText(targetEl.textContent).then(() => showToast("Copied"));
+            }
         });
 
-        // Remove after delay
-        setTimeout(() => {
-          toast.classList.add("translate-y-10", "opacity-0");
-          setTimeout(() => toast.remove(), 300);
-        }, 3000);
-      }
+        // Visibility
+        document.addEventListener("click", (e) => {
+            const btn = e.target.closest(".toggle-visibility-btn");
+            if (!btn) return;
+            const targetEl = document.getElementById(btn.dataset.target);
+            if (targetEl) {
+                targetEl.classList.toggle("blur-sm");
+                targetEl.classList.toggle("select-none");
+                const isHidden = targetEl.classList.contains("blur-sm");
+                btn.innerHTML = `<iconify-icon icon="${isHidden ? "lucide:eye" : "lucide:eye-off"}"></iconify-icon>`;
+            }
+        });
 
-      // Copy Functionality
-      document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".copy-btn");
-        if (!btn) return;
+        // Generate
+        let currentKp = null;
+        document.getElementById("genBtn").addEventListener("click", () => {
+            currentKp = Keypair.generate();
+            document.getElementById("genPub").textContent = currentKp.publicKey.toBase58();
+            document.getElementById("genPriv58").textContent = bs58.encode(currentKp.secretKey);
+            document.getElementById("genPriv8").textContent = u8ToStr(currentKp.secretKey);
+            document.getElementById("genResult").classList.remove("hidden");
+            
+            // Reset blur
+            ['genPriv58', 'genPriv8'].forEach(id => {
+                document.getElementById(id).classList.add("blur-sm", "select-none");
+            });
+            document.querySelectorAll(".toggle-visibility-btn").forEach(btn => {
+                btn.innerHTML = '<iconify-icon icon="lucide:eye"></iconify-icon>';
+            });
+        });
 
-        const targetId = btn.dataset.target;
-        const targetEl = document.getElementById(targetId);
-        if (targetEl && targetEl.textContent) {
-          navigator.clipboard.writeText(targetEl.textContent).then(() => {
-            showToast("Copied to clipboard!");
-            // Visual feedback on button
-            const originalIcon = btn.innerHTML;
-            btn.innerHTML =
-              '<iconify-icon icon="lucide:check" class="text-emerald-400"></iconify-icon>';
-            setTimeout(() => {
-              btn.innerHTML = originalIcon;
-            }, 2000);
-          });
-        }
-      });
+        // Download
+        document.getElementById("downloadBtn").addEventListener("click", () => {
+            if (!currentKp) return;
+            const blob = new Blob([JSON.stringify(Array.from(currentKp.secretKey))], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `id-${currentKp.publicKey.toBase58().slice(0, 8)}.json`;
+            a.click();
+            showToast("Saved");
+        });
 
-      // Visibility Toggle
-      document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".toggle-visibility-btn");
-        if (!btn) return;
+        // Converters
+        document.getElementById("u8Btn").addEventListener("click", () => {
+            try {
+                const u8 = new Uint8Array(JSON.parse(document.getElementById("u8Input").value));
+                document.getElementById("u8Result").textContent = bs58.encode(u8);
+            } catch { showToast("Invalid Array"); }
+        });
 
-        const targetId = btn.dataset.target;
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          targetEl.classList.toggle("blur-sm");
-          targetEl.classList.toggle("select-none");
-          const isHidden = targetEl.classList.contains("blur-sm");
-          btn.innerHTML = `<iconify-icon icon="${isHidden ? "lucide:eye" : "lucide:eye-off"}"></iconify-icon>`;
-        }
-      });
+        document.getElementById("b58Btn").addEventListener("click", () => {
+            try {
+                document.getElementById("b58Result").textContent = u8ToStr(bs58.decode(document.getElementById("b58Input").value.trim()));
+            } catch { showToast("Invalid Base58"); }
+        });
 
-      // 1. Generate
-      let currentKeypair = null;
-      document.getElementById("genBtn").addEventListener("click", () => {
-        currentKeypair = Keypair.generate();
-        document.getElementById("genPub").textContent =
-          currentKeypair.publicKey.toBase58();
-        document.getElementById("genPriv58").textContent = bs58.encode(
-          currentKeypair.secretKey,
-        );
-        document.getElementById("genPriv8").textContent = u8ToStr(
-          currentKeypair.secretKey,
-        );
-        document.getElementById("genResult").classList.remove("hidden");
+        // Grinder
+        let isGrinding = false;
+        document.getElementById("grindBtn").addEventListener("click", () => {
+            if (isGrinding) return;
+            const start = document.getElementById("grindStart").value.trim();
+            const end = document.getElementById("grindEnd").value.trim();
+            if (!start && !end) return showToast("Enter prefix or suffix");
 
-        // Re-apply blurs if they were removed
-        document.getElementById("genPriv58").classList.add("blur-sm");
-        document.getElementById("genPriv8").classList.add("blur-sm");
-        document
-          .querySelectorAll(".toggle-visibility-btn iconify-icon")
-          .forEach((icon) => {
-            icon.setAttribute("icon", "lucide:eye");
-          });
-      });
+            isGrinding = true;
+            const btn = document.getElementById("grindBtn");
+            const status = document.getElementById("grindStatus");
+            const results = document.getElementById("grindResults");
+            
+            btn.textContent = "Stop"; // Simple toggle for UX
+            btn.onclick = () => { location.reload() }; // Quick way to stop for minimal demo
+            results.innerHTML = "";
+            results.classList.remove("hidden");
 
-      // Download JSON
-      document.getElementById("downloadBtn").addEventListener("click", () => {
-        if (!currentKeypair) return;
+            let attempts = 0;
+            const startTime = Date.now();
 
-        const filename = `id-${currentKeypair.publicKey.toBase58().slice(0, 8)}.json`;
-        const blob = new Blob(
-          [JSON.stringify(Array.from(currentKeypair.secretKey))],
-          { type: "application/json" },
-        );
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast("Keypair JSON downloaded");
-      });
+            const loop = () => {
+                for(let i=0; i<500; i++) {
+                    const kp = Keypair.generate();
+                    const pub = kp.publicKey.toBase58();
+                    const matchStart = !start || pub.startsWith(start);
+                    const matchEnd = !end || pub.endsWith(end);
 
-      // 2. Uint8 -> Base58
-      document.getElementById("u8Btn").addEventListener("click", () => {
-        try {
-          const input = document.getElementById("u8Input").value.trim();
-          const parsed = JSON.parse(
-            input.startsWith("[") ? input : `[${input}]`,
-          );
-          const u8 = new Uint8Array(parsed);
-          document.getElementById("u8Result").textContent = bs58.encode(u8);
-        } catch (e) {
-          showToast("Invalid Uint8Array input", "error");
-        }
-      });
-
-      // 3. Base58 -> Uint8
-      document.getElementById("b58Btn").addEventListener("click", () => {
-        try {
-          const input = document.getElementById("b58Input").value.trim();
-          const u8 = bs58.decode(input);
-          document.getElementById("b58Result").textContent = u8ToStr(u8);
-        } catch (e) {
-          showToast("Invalid Base58 input", "error");
-        }
-      });
-
-      // 4. Grind
-      let isGrinding = false;
-      document
-        .getElementById("grindBtn")
-        .addEventListener("click", async () => {
-          if (isGrinding) return;
-
-          const start = document.getElementById("grindStart").value.trim();
-          const end = document.getElementById("grindEnd").value.trim();
-
-          if (!start && !end) {
-            showToast("Specify start or end string", "error");
-            return;
-          }
-
-          isGrinding = true;
-          const btn = document.getElementById("grindBtn");
-          const status = document.getElementById("grindStatus");
-          const results = document.getElementById("grindResults");
-
-          btn.innerHTML =
-            '<iconify-icon icon="lucide:loader-2" class="animate-spin"></iconify-icon> Grinding...';
-          btn.classList.add("opacity-50", "cursor-not-allowed");
-          results.innerHTML = "";
-          results.classList.remove("hidden");
-
-          let attempts = 0;
-          const startTime = Date.now();
-
-          // Use setImmediate/setTimeout loop to not freeze UI completely
-          const grindLoop = () => {
-            const BATCH_SIZE = 1000;
-            for (let i = 0; i < BATCH_SIZE; i++) {
-              const kp = Keypair.generate();
-              const pub = kp.publicKey.toBase58();
-
-              const matchStart = !start || pub.startsWith(start);
-              const matchEnd = !end || pub.endsWith(end);
-
-              if (matchStart && matchEnd) {
-                const div = document.createElement("div");
-                div.className =
-                  "bg-slate-900/50 p-4 rounded-lg border border-pink-500/20 animate-in fade-in slide-in-from-left-4 relative group";
-                div.innerHTML = `
+                    if (matchStart && matchEnd) {
+                        const div = document.createElement("div");
+                        div.className = "border border-border p-4 bg-surface group";
+                        div.innerHTML = `
                             <div class="flex justify-between items-start">
-                                <div>
-                                    <div class="text-emerald-400 font-mono text-sm break-all font-bold">${pub}</div>
-                                    <div class="text-xs text-slate-500 truncate mt-2 font-mono blur-sm hover:blur-0 transition-all cursor-help" title="Hover to reveal">${bs58.encode(kp.secretKey)}</div>
-                                </div>
-                                <button class="btn-icon copy-btn opacity-0 group-hover:opacity-100 transition-opacity" data-target="grind-${attempts}">
+                                <div class="mono-box text-sm text-white">${pub}</div>
+                                <button class="copy-btn text-neutral-600 hover:text-white transition-colors opacity-0 group-hover:opacity-100" data-clipboard="${bs58.encode(kp.secretKey)}">
                                     <iconify-icon icon="lucide:copy"></iconify-icon>
                                 </button>
-                                <!-- Hidden element for copy target -->
-                                <div id="grind-${attempts}" class="hidden">${bs58.encode(kp.secretKey)}</div>
                             </div>
+                            <div class="mono-box text-xs text-neutral-600 mt-2 break-all blur-sm hover:blur-0 transition-all">${bs58.encode(kp.secretKey)}</div>
                         `;
-                results.prepend(div);
-
-                isGrinding = false;
-                btn.innerHTML = "Start Grinding";
-                btn.classList.remove("opacity-50", "cursor-not-allowed");
-                status.textContent = `Found in ${(Date.now() - startTime) / 1000}s after ${attempts.toLocaleString()} attempts`;
-                showToast("Vanity address found!");
-                return;
-              }
-              attempts++;
-            }
-
-            if (isGrinding) {
-              if (attempts % 10000 === 0) {
-                status.textContent = `Attempts: ${attempts.toLocaleString()}...`;
-              }
-              setTimeout(grindLoop, 0);
-            }
-          };
-
-          grindLoop();
+                        // Custom copy logic for dynamic elements
+                        div.querySelector('.copy-btn').onclick = () => {
+                            navigator.clipboard.writeText(bs58.encode(kp.secretKey)).then(() => showToast("Copied Secret"));
+                        };
+                        
+                        results.prepend(div);
+                        status.textContent = `${((Date.now() - startTime)/1000).toFixed(2)}s / ${attempts} tries`;
+                        isGrinding = false;
+                        btn.textContent = "Start";
+                        btn.onclick = null; // Reset handler
+                        // Re-bind click listener properly in real app, here we rely on the main listener but we need to reset state carefully
+                        // For this minimal demo, we just return.
+                        return;
+                    }
+                    attempts++;
+                }
+                if (isGrinding) {
+                    if (attempts % 5000 === 0) status.textContent = `${attempts.toLocaleString()} scanning...`;
+                    setTimeout(loop, 0);
+                }
+            };
+            loop();
         });
     </script>
   </body>

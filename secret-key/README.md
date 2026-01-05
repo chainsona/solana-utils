@@ -81,5 +81,5 @@ cargo test
 These tools handle private keys. **Always use them in a secure, offline environment** when generating keys for mainnet assets. The HTML version runs entirely locally in your browser.
 
 ## 📄 License
-ISC
+MIT
 

@@ -19,11 +19,8 @@ A comprehensive suite for managing Solana secret keys.
 ```
 solana-utils/
 ├── secret-key/       # Key management tools
-│   ├── node/         # Node.js CLI implementation
-│   ├── rust/         # Rust CLI implementation
-│   └── html/         # Browser-based implementation
 ```
 
 ## 📄 License
-ISC
+MIT
 
